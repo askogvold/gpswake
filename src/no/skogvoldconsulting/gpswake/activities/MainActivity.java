@@ -6,6 +6,7 @@ import no.skogvoldconsulting.gpswake.R;
 import no.skogvoldconsulting.gpswake.model.AlarmDefinition;
 import no.skogvoldconsulting.gpswake.model.NewAlarmDefinition;
 import no.skogvoldconsulting.gpswake.model.Position;
+import no.skogvoldconsulting.gpswake.persistence.AlarmProvider;
 import no.skogvoldconsulting.gpswake.persistence.FakeAlarmProvider;
 import android.app.Activity;
 import android.content.Intent;
@@ -23,9 +24,10 @@ public class MainActivity extends Activity {
 	private static final int POSITION_EDIT = 2;
 	private static final int ALARM_NEW = 3;
 	private static final int ALARM_EDIT = 4;
-	
-	private ArrayAdapter<AlarmDefinition> adap;
-	private Spinner s;
+
+	private AlarmProvider provider = new FakeAlarmProvider();
+	private ArrayAdapter<AlarmDefinition> adapter;
+	private Spinner spinner;
 	private Button b;
 
 	@Override
@@ -35,28 +37,20 @@ public class MainActivity extends Activity {
 
 		b = (Button) findViewById(R.id.editAlarmButton);
 		b.setOnClickListener(new EditAlarmButtonListener());
-		
+
 		populateSpinner();
 	}
 
 	private void populateSpinner() {
-		s = (Spinner) findViewById(R.id.choosePlaceSpinner);
-		adap = new ArrayAdapter<AlarmDefinition>(this,
-				android.R.layout.simple_spinner_item);
-		ArrayList<AlarmDefinition> alarms = new FakeAlarmProvider().getAlarms();
-		for(AlarmDefinition a : alarms) {
-			adap.add(a);
-		}
-		adap.add(NewAlarmDefinition.get());
-		s.setOnItemSelectedListener(new AlarmOnItemListener());
-
-		s.setAdapter(adap);
+		spinner = (Spinner) findViewById(R.id.choosePlaceSpinner);
+		populateAlarms();
+		spinner.setOnItemSelectedListener(new AlarmOnItemListener());
 	}
 
 	private void requestNewPosition() {
 		PickPositionActivity.requestPosition(this, POSITION_NEW);
 	}
-	
+
 	private void editPosition(Position p) {
 		PickPositionActivity.editPosition(this, POSITION_EDIT, p);
 	}
@@ -64,7 +58,7 @@ public class MainActivity extends Activity {
 	private void createAlarmFromPosition(Position p) {
 		EditAlarmActivity.createAlarmFromPosition(this, ALARM_NEW, p);
 	}
-	
+
 	private void editAlarm(AlarmDefinition def) {
 		EditAlarmActivity.editAlarm(this, ALARM_EDIT, def);
 	}
@@ -75,16 +69,33 @@ public class MainActivity extends Activity {
 		switch (requestCode) {
 		case POSITION_NEW:
 			if (resultCode == RESULT_OK) {
-				Position p = (Position) data
-						.getSerializableExtra(Position.KEY);
+				Position p = (Position) data.getSerializableExtra(Position.KEY);
 				createAlarmFromPosition(p);
 			} else {
-				s.setSelection(0);
+				spinner.setSelection(0);
 			}
 			break;
+		case ALARM_NEW:
+			if (resultCode == RESULT_OK) {
+				AlarmDefinition def = (AlarmDefinition) data
+						.getSerializableExtra(AlarmDefinition.KEY);
+				provider.addAlarm(def);
+				populateAlarms();
+				spinner.setSelection(adapter.getPosition(def));
+			}
 		}
 	}
 
+	private void populateAlarms() {
+		adapter = new ArrayAdapter<AlarmDefinition>(this,
+				android.R.layout.simple_spinner_item);
+		ArrayList<AlarmDefinition> alarms = provider.getAlarms();
+		for (AlarmDefinition a : alarms) {
+			adapter.add(a);
+		}
+		adapter.add(NewAlarmDefinition.get());
+		spinner.setAdapter(adapter);
+	}
 
 	private final class AlarmOnItemListener implements OnItemSelectedListener {
 		@Override
@@ -93,20 +104,20 @@ public class MainActivity extends Activity {
 			AlarmDefinition item = (AlarmDefinition) parent
 					.getItemAtPosition(pos);
 			if (item instanceof NewAlarmDefinition) {
+				parent.setSelection(0);
 				requestNewPosition();
 			}
 		}
 
 		@Override
 		public void onNothingSelected(AdapterView<?> arg0) {
-
 		}
 	}
 
 	private final class EditAlarmButtonListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
-			editAlarm((AlarmDefinition) s.getSelectedItem());
+			editAlarm((AlarmDefinition) spinner.getSelectedItem());
 		}
 	}
 }

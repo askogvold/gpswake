@@ -12,38 +12,42 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class EditAlarmActivity extends Activity {
+
+	private static final int EDIT_POSITION = 1;
 	private AlarmDefinition alarmDef;
 	private TextView alarmNameView;
 	private TextView radiusView;
-	private Button button;
+	private Button confirmButton;
+	private Button positionButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.edit_alarm);
+		alarmDef = (AlarmDefinition) getIntent().getSerializableExtra(
+				AlarmDefinition.KEY);
+
 		if (savedInstanceState != null) {
 			alarmDef = (AlarmDefinition) savedInstanceState
 					.getSerializable(AlarmDefinition.KEY);
 		}
-		
+
+		positionButton = (Button) findViewById(R.id.positionButton);
+		positionButton.setOnClickListener(new EditPositionListener());
+		updatePositionButtonText();
+
 		alarmNameView = (TextView) findViewById(R.id.alarmName);
 		alarmNameView.setText(alarmDef.getName());
 
 		radiusView = (TextView) findViewById(R.id.positionRadius);
 		radiusView.setText(String.valueOf(alarmDef.getRadius()));
 
-		button = (Button) findViewById(R.id.confirmButton);
-		button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				alarmDef.setName(alarmNameView.getText().toString());
-				alarmDef.setRadius(Double.valueOf(radiusView.getText()
-						.toString()));
-				Intent in = new Intent();
-				in.putExtra(AlarmDefinition.KEY, alarmDef);
-				setResult(RESULT_OK, in);
-				finish();
-			}
-		});
+		confirmButton = (Button) findViewById(R.id.confirmButton);
+		confirmButton.setOnClickListener(new ConfirmOnClickListener());
+	}
+
+	private void updatePositionButtonText() {
+		positionButton.setText(alarmDef.getPosition().toString());
 	}
 
 	@Override
@@ -62,7 +66,8 @@ public class EditAlarmActivity extends Activity {
 			int requestCode, Position p) {
 		Intent in = new Intent();
 		in.setClass(context, EditAlarmActivity.class);
-		AlarmDefinition newAlarm = new AlarmDefinition("Ny alarm", p, 100);
+		AlarmDefinition newAlarm = new AlarmDefinition(context
+				.getString(R.string.new_alarm), p, 100);
 		in.putExtra(AlarmDefinition.KEY, newAlarm);
 		context.startActivityForResult(in, requestCode);
 	}
@@ -73,4 +78,39 @@ public class EditAlarmActivity extends Activity {
 		in.putExtra(AlarmDefinition.KEY, def);
 		context.startActivityForResult(in, requestCode);
 	}
+
+	private final class EditPositionListener implements OnClickListener {
+		@Override
+		public void onClick(View v) {
+			PickPositionActivity.editPosition(EditAlarmActivity.this,
+					EDIT_POSITION, alarmDef.getPosition());
+		}
+	}
+
+	private final class ConfirmOnClickListener implements OnClickListener {
+		@Override
+		public void onClick(View v) {
+			alarmDef.setName(alarmNameView.getText().toString());
+			alarmDef.setRadius(Double.valueOf(radiusView.getText().toString()));
+			Intent in = new Intent();
+			in.putExtra(AlarmDefinition.KEY, alarmDef);
+			setResult(RESULT_OK, in);
+			finish();
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+		case EDIT_POSITION:
+			if (resultCode == RESULT_OK) {
+				Position p = (Position) data.getSerializableExtra(Position.KEY);
+				alarmDef.setPosition(p);
+				updatePositionButtonText();
+			}
+			break;
+		}
+	}
+
 }

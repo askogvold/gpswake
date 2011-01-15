@@ -6,5 +6,5 @@ import no.skogvoldconsulting.gpswake.model.AlarmDefinition;
 
 public interface AlarmProvider {
 	public ArrayList<AlarmDefinition> getAlarms();
-	public void addAlarm();
+	void addAlarm(AlarmDefinition def);
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="new_alarm">Ny alarm</string>
     <string name="save">Lagre</string>
     <string name="editAlarm">Rediger alarm</string>
     <string name="choosePosition">Velg posisjon</string>
