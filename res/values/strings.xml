@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_position">Velg posisjon</string>
+    <string name="hello">Hello World, MainActivity!</string>
+    <string name="app_name">GpsWakeup</string>
+<string name="mapkey_debug">04EgoJU0zQpJ-JR1dSfGl95hPVBgkenfa_OGl6w</string>
+</resources>
