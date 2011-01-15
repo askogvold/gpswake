@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+
+	<TextView android:text="Posisjon" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+
+	<TextView android:text="Kallenavn" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<EditText android:id="@+id/alarmName" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<TextView android:text="Radius" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<EditText android:id="@+id/positionRadius"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:inputType="numberDecimal" />
+
+	<Button android:text="@string/save" android:id="@+id/confirmButton"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+</LinearLayout>
