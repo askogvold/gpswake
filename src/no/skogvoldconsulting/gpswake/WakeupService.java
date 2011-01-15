@@ -31,16 +31,16 @@ public class WakeupService extends Service {
 
 		LocationManager locationService = (LocationManager) getSystemService(LOCATION_SERVICE);
 		long noExpiration = -1;
-		double latitude = alarmDef.position.lat;
-		double longitude = alarmDef.position.lon;
-		float radius = alarmDef.radius;
+		double latitude = alarmDef.getPosition().lat;
+		double longitude = alarmDef.getPosition().lon;
+		double radius = alarmDef.getRadius();
 
 		PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(
 				POSITION_REACHED), 0);
 		registerReceiver(new AlarmReceiver(),
 				new IntentFilter(POSITION_REACHED));
 
-		locationService.addProximityAlert(latitude, longitude, radius,
+		locationService.addProximityAlert(latitude, longitude, (float)radius,
 				noExpiration, pi);
 	}
 

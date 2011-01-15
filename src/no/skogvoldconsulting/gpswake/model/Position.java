@@ -6,6 +6,7 @@ import com.google.android.maps.GeoPoint;
 
 @SuppressWarnings("serial")
 public class Position implements Serializable {
+	public static String KEY = "POSITION";
 	public double lat;
 	public double lon;
 
@@ -13,15 +14,15 @@ public class Position implements Serializable {
 		this.lat = lat;
 		this.lon = lon;
 	}
-	
+
 	public static Position fromGeoPoint(GeoPoint gp) {
-		return new Position(gp.getLatitudeE6()/1e6, gp.getLongitudeE6()/1e6);
+		return new Position(gp.getLatitudeE6() / 1e6, gp.getLongitudeE6() / 1e6);
 	}
-	
+
 	public GeoPoint toGeoPoint() {
-		
-		int latitudeE6 = (int) (lat*1e6);
-		int longitudeE6 = (int) (lon*1e6);
+
+		int latitudeE6 = (int) (lat * 1e6);
+		int longitudeE6 = (int) (lon * 1e6);
 		return new GeoPoint(latitudeE6, longitudeE6);
 	}
 

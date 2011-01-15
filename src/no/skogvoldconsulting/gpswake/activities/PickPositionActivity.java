@@ -2,6 +2,7 @@ package no.skogvoldconsulting.gpswake.activities;
 
 import no.skogvoldconsulting.gpswake.R;
 import no.skogvoldconsulting.gpswake.model.Position;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -22,7 +23,6 @@ import de.android1.overlaymanager.ZoomEvent;
 import de.android1.overlaymanager.ManagedOverlayGestureDetector.OnOverlayGestureListener;
 
 public class PickPositionActivity extends MapActivity {
-	public static final String POSITION = "POSITION";
 	private MapView mapView;
 	private MyLocationOverlay mlo;
 	private ManagedOverlayItem selectedPosition;
@@ -42,8 +42,8 @@ public class PickPositionActivity extends MapActivity {
 		setupMyLocation();
 		setupClickHandling();
 
-		if (icicle != null && icicle.containsKey(POSITION)) {
-			Position pos = (Position) icicle.getSerializable(POSITION);
+		if (icicle != null && icicle.containsKey(Position.KEY)) {
+			Position pos = (Position) icicle.getSerializable(Position.KEY);
 			int lat = (int) (pos.lat * 1e6);
 			int lon = (int) (pos.lon * 1e6);
 			setSelectedPosition(new GeoPoint(lat, lon));
@@ -57,7 +57,7 @@ public class PickPositionActivity extends MapActivity {
 			public void onClick(View v) {
 				Intent in = new Intent();
 				GeoPoint point = selectedPosition.getPoint();
-				in.putExtra(POSITION, Position.fromGeoPoint(point));
+				in.putExtra(Position.KEY, Position.fromGeoPoint(point));
 				setResult(RESULT_OK, in);
 				finish();
 			}
@@ -158,13 +158,24 @@ public class PickPositionActivity extends MapActivity {
 		super.onSaveInstanceState(outState);
 		if (ol != null) {
 			GeoPoint pos = selectedPosition.getPoint();
-			outState.putSerializable(POSITION, Position.fromGeoPoint(pos));
+			outState.putSerializable(Position.KEY, Position.fromGeoPoint(pos));
 		}
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		setResult(RESULT_CANCELED);
 		super.onBackPressed();
+	}
+
+	public static void requestPosition(Activity context, int requestCode) {
+		Intent in = new Intent(context, PickPositionActivity.class);
+		context.startActivityForResult(in, requestCode);
+	}
+
+	public static void editPosition(Activity context, int requestCode,
+			Position p) {
+		Intent in = new Intent(context, PickPositionActivity.class);
+		context.startActivityForResult(in, requestCode);
 	}
 }
