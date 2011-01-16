@@ -21,9 +21,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class MainActivity extends Activity {
 	private static final int POSITION_NEW = 1;
-	private static final int POSITION_EDIT = 2;
-	private static final int ALARM_NEW = 3;
-	private static final int ALARM_EDIT = 4;
+	private static final int ALARM_NEW = 2;
+	private static final int ALARM_EDIT = 3;
 
 	private AlarmProvider provider = new FakeAlarmProvider();
 	private ArrayAdapter<AlarmDefinition> adapter;
@@ -49,10 +48,6 @@ public class MainActivity extends Activity {
 
 	private void requestNewPosition() {
 		PickPositionActivity.requestPosition(this, POSITION_NEW);
-	}
-
-	private void editPosition(Position p) {
-		PickPositionActivity.editPosition(this, POSITION_EDIT, p);
 	}
 
 	private void createAlarmFromPosition(Position p) {
@@ -83,6 +78,12 @@ public class MainActivity extends Activity {
 				populateAlarms();
 				spinner.setSelection(adapter.getPosition(def));
 			}
+			break;
+		case ALARM_EDIT:
+			if(resultCode == RESULT_OK) {
+				
+			}
+			break;
 		}
 	}
 

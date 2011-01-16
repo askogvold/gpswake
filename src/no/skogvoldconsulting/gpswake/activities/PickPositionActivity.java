@@ -42,11 +42,15 @@ public class PickPositionActivity extends MapActivity {
 		setupMyLocation();
 		setupClickHandling();
 
+		Position inputPosition = (Position) getIntent().getSerializableExtra(
+				Position.KEY);
+		if (inputPosition != null) {
+			setSelectedPosition(inputPosition.toGeoPoint());
+		}
+
 		if (icicle != null && icicle.containsKey(Position.KEY)) {
 			Position pos = (Position) icicle.getSerializable(Position.KEY);
-			int lat = (int) (pos.lat * 1e6);
-			int lon = (int) (pos.lon * 1e6);
-			setSelectedPosition(new GeoPoint(lat, lon));
+			setSelectedPosition(pos.toGeoPoint());
 		}
 	}
 
@@ -71,6 +75,7 @@ public class PickPositionActivity extends MapActivity {
 			mapView.postInvalidate();
 		}
 		confirmButton.setEnabled(true);
+		mapView.getController().animateTo(pos);
 	}
 
 	@Override
@@ -81,7 +86,7 @@ public class PickPositionActivity extends MapActivity {
 
 	private void followMyLocation() {
 		mlo.enableMyLocation();
-		if (selectedPosition != null) {
+		if (selectedPosition == null) {
 			mlo.runOnFirstFix(new Runnable() {
 				public void run() {
 					mapView.getController().animateTo(mlo.getMyLocation());
@@ -101,41 +106,7 @@ public class PickPositionActivity extends MapActivity {
 		ol = om.createOverlay();
 		om.populate();
 
-		ol.setOnOverlayGestureListener(new OnOverlayGestureListener() {
-
-			@Override
-			public boolean onZoom(ZoomEvent arg0, ManagedOverlay arg1) {
-				return false;
-			}
-
-			@Override
-			public boolean onSingleTap(MotionEvent ev, ManagedOverlay ol,
-					GeoPoint pos, ManagedOverlayItem item) {
-				setSelectedPosition(pos);
-				return true;
-			}
-
-			@Override
-			public boolean onScrolled(MotionEvent arg0, MotionEvent arg1,
-					float arg2, float arg3, ManagedOverlay arg4) {
-				return false;
-			}
-
-			@Override
-			public void onLongPressFinished(MotionEvent arg0,
-					ManagedOverlay arg1, GeoPoint arg2, ManagedOverlayItem arg3) {
-			}
-
-			@Override
-			public void onLongPress(MotionEvent arg0, ManagedOverlay arg1) {
-			}
-
-			@Override
-			public boolean onDoubleTap(MotionEvent arg0, ManagedOverlay arg1,
-					GeoPoint arg2, ManagedOverlayItem arg3) {
-				return false;
-			}
-		});
+		ol.setOnOverlayGestureListener(new GestureListener());
 	}
 
 	private void setupMyLocation() {
@@ -176,6 +147,42 @@ public class PickPositionActivity extends MapActivity {
 	public static void editPosition(Activity context, int requestCode,
 			Position p) {
 		Intent in = new Intent(context, PickPositionActivity.class);
+		in.putExtra(Position.KEY, p);
 		context.startActivityForResult(in, requestCode);
+	}
+
+	private final class GestureListener implements OnOverlayGestureListener {
+		@Override
+		public boolean onZoom(ZoomEvent arg0, ManagedOverlay arg1) {
+			return false;
+		}
+
+		@Override
+		public boolean onSingleTap(MotionEvent ev, ManagedOverlay ol,
+				GeoPoint pos, ManagedOverlayItem item) {
+			setSelectedPosition(pos);
+			return true;
+		}
+
+		@Override
+		public boolean onScrolled(MotionEvent arg0, MotionEvent arg1,
+				float arg2, float arg3, ManagedOverlay arg4) {
+			return false;
+		}
+
+		@Override
+		public void onLongPressFinished(MotionEvent arg0, ManagedOverlay arg1,
+				GeoPoint arg2, ManagedOverlayItem arg3) {
+		}
+
+		@Override
+		public void onLongPress(MotionEvent arg0, ManagedOverlay arg1) {
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent arg0, ManagedOverlay arg1,
+				GeoPoint arg2, ManagedOverlayItem arg3) {
+			return false;
+		}
 	}
 }
